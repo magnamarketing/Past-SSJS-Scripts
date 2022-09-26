@@ -1,0 +1,332 @@
+// parses orders into an Orders Data Extension
+
+
+
+<script runat = "server" >
+
+    Platform.Load('core', '1');
+
+function trim(x) {
+    return x.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+};
+
+function dataFromAttr(data, attr, notNull) {
+    if (data) {
+        var reg = new RegExp("<" + attr + ">", "g");
+        var result = data.match(reg);
+        if (result.length == 0 && attr == "quantity unit=''") {
+            var str = '';
+            return trim(str);
+
+        }
+
+        if (result.length == 0) {
+            var str = '';
+            return trim(str);
+
+        }
+        if (result.length == 1 && attr == "quantity unit=''") {
+            var str = data.split("<" + attr + ">")[1];
+            str = str.split("</" + 'quantity' + ">")[0];
+            return trim(str);
+        }
+        if (result.length == 1) {
+            var str = data.split("<" + attr + ">")[1];
+            str = str.split("</" + attr + ">")[0];
+            return trim(str);
+        }
+        if (result.length > 1 && attr == "quantity unit=''") {
+
+            var sub_array2 = [];
+            var sub_array = [];
+
+
+            arr = data.split("<" + attr + ">");
+
+            for (var i = 1; i < arr.length; i++) {
+                arr[i];
+                str = arr[i].split("</" + 'quantity' + ">")[0];
+                sub_array.push(str);
+            }
+            for (var j = 0; j < sub_array.length; j++) {
+
+                arr2 = sub_array[j].split("<" + attr + ">")[0];
+
+                sub_array2.push(arr2);
+            }
+
+            return sub_array2.toString();
+        }
+        if (result.length > 1) {
+
+            var sub_array2 = [];
+            var sub_array = [];
+
+
+            arr = data.split("<" + attr + ">");
+
+            for (var i = 1; i < arr.length; i++) {
+                arr[i];
+                str = arr[i].split("</" + attr + ">")[0];
+                sub_array.push(str);
+            }
+            for (var j = 0; j < sub_array.length; j++) {
+
+                arr2 = sub_array[j].split("<" + attr + ">")[0];
+
+                sub_array2.push(arr2);
+            }
+
+            return sub_array2.toString();
+        }
+
+        var nullElementValue = new RegExp("<" + attr + " />");
+        if (data.match(nullElementValue).length) return "";
+        if (notNull) return "";
+    } else {
+        return null;
+    }
+};
+
+
+
+
+//Test
+function trim2(x) {
+    return x.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+};
+
+function dataFromAttr2(data, attr, parentatrr, blacklist) {
+
+    if (data) {
+        var reg = new RegExp("<" + attr + ">", "g");
+        var result = data.match(reg);
+
+        if (result.length == 0 && attr == "quantity unit=''") {
+            var str = '';
+            return trim(str);
+        }
+
+        if (result.length == 0) {
+            var str = '';
+            return trim(str);
+        }
+
+        if (result.length == 1 && blacklist && attr == "quantity unit=''") {
+
+            var str = data.split("<" + blacklist + ">");
+            if (str.length > 1) {
+                var str2 = data.split("<" + blacklist + ">")[1];
+                str2 = str2.split("</" + blacklist + ">")[0];
+                data = data.replace(trim(str2), '');
+            }
+            //str = str.split("</"+blacklist+">")[0];
+
+
+        }
+        if (result.length == 1 && blacklist) {
+
+            var str = data.split("<" + blacklist + ">");
+            if (str.length > 1) {
+                var str2 = data.split("<" + blacklist + ">")[1];
+                str2 = str2.split("</" + blacklist + ">")[0];
+                data = data.replace(trim(str2), '');
+            }
+            //str = str.split("</"+blacklist+">")[0];
+
+
+          
+        }
+
+        if (result.length == 1 && attr == "quantity unit=''") {
+            var str = data.split("<" + attr + ">")[1];
+            str = str.split("</" + 'quantity' + ">")[0];
+            return trim(str);
+        }
+        if (result.length == 1) {
+            var str = data.split("<" + attr + ">")[1];
+            str = str.split("</" + attr + ">")[0];
+            return trim(str);
+        }
+
+        if (result.length > 1 && attr == "quantity unit=''") {
+            var str = data.split("</" + 'quantity' + ">         <" + attr + ">");
+
+            for (var k = 0; k < str.length - 1; k++) {
+                str[k] = str[k] + "</" + parentatrr + ">";
+                str[k + 1] = "<" + parentatrr + ">" + str[k + 1];
+            }
+            return str;
+        }
+        if (result.length > 1) {
+            var str = data.split("</" + attr + "> <" + attr + ">");
+
+            for (var k = 0; k < str.length - 1; k++) {
+                str[k] = str[k] + "</" + parentatrr + ">";
+                str[k + 1] = "<" + parentatrr + ">" + str[k + 1];
+            }
+            return str;
+        }
+        var nullElementValue = new RegExp("<" + attr + " />");
+        if (data.match(nullElementValue).length) return "";
+        //if(notNull) return "";
+    } else {
+        return null;
+    }
+};
+
+//remove inner blacklisted items
+
+function removeBlacklist(data, attr) {
+
+    var str = data.split("<" + attr + ">");
+    if (str.length > 1 && attr == "quantity unit=''") {
+        var str2 = data.split("<" + attr + ">")[1];
+        str2 = str2.split("</" + quantity + ">")[0];
+        data = data.replace(trim(str2), '');
+    }
+
+    if (str.length > 1) {
+        var str2 = data.split("<" + attr + ">")[1];
+        str2 = str2.split("</" + attr + ">")[0];
+        data = data.replace(trim(str2), '');
+    }
+    return data
+
+}
+
+var orderXMLDE = DataExtension.Init("3E5C86DF-8499-4564-B4C2-599C6BDB7D87"); 
+var targetDE = DataExtension.Init("2A52786F-655F-467F-A1B8-98A139637298");
+
+var lineItemDE = DataExtension.Init("7CC0A7F3-A527-4E35-BBE8-A6116995CB3E");
+
+var filter = {Property:"ParsedOrders",SimpleOperator:"equals",Value:false};
+var filter1 = {Property:"ParsedOrders",SimpleOperator:"isNull"};
+var dataOrder = orderXMLDE.Rows.Retrieve(filter);
+
+
+for (var j = 0; j < dataOrder.length; j++) {
+
+    var orderId = dataOrder[j].OrderNumber;
+    //Write(Stringify(orderId));
+    var xml = dataOrder[j].OrderAsXML;
+     xml = xml.replace("unit=''",'unit=""');
+   
+
+try{
+
+
+    //Add fields from xml
+    var order_status = dataFromAttr(dataFromAttr(xml, "status"), "order-status");
+    var shipping_status = dataFromAttr(dataFromAttr(xml, "status"), "shipping-status");
+    var confirmation_status = dataFromAttr(dataFromAttr(xml, "status"), "confirmation-status");
+    var payment_status = dataFromAttr(dataFromAttr(xml, "status"), "payment-status");
+    var createdby = dataFromAttr(xml, "created-by");
+    var creation_date = dataFromAttr(xml, "order-date");
+    var original_order_no = dataFromAttr(xml, "original-order-no");
+    var currency = dataFromAttr(xml, "currency");
+    var customer_locale = dataFromAttr(xml, "customer-locale");
+    var taxation = dataFromAttr(xml, "taxation");
+    var current_order_no = dataFromAttr(xml, "current-order-no");
+    var customer_no = dataFromAttr(dataFromAttr(xml, "customer"), "customer-no");
+    var customer_name = dataFromAttr(xml, "customer-name");
+    var customer_email = dataFromAttr(dataFromAttr(xml, "customer"), "customer-email");
+    var billing_first_name = dataFromAttr(dataFromAttr(dataFromAttr(xml, "customer"), "billing-address"), "first-name");
+    var billing_last_name = dataFromAttr(dataFromAttr(dataFromAttr(xml, "customer"), "billing-address"), "last-name");
+    var billing_address1 = dataFromAttr(dataFromAttr(dataFromAttr(xml, "customer"), "billing-address"), "address1");
+    var billing_address2 = dataFromAttr(dataFromAttr(dataFromAttr(xml, "customer"), "billing-address"), "address2");
+    var billing_city = dataFromAttr(dataFromAttr(dataFromAttr(xml, "customer"), "billing-address"), "city");
+    var billing_postal_code = dataFromAttr(dataFromAttr(dataFromAttr(xml, "customer"), "billing-address"), "postal-code");
+    var billing_state_code = dataFromAttr(dataFromAttr(dataFromAttr(xml, "customer"), "billing-address"), "state-code");
+    var billing_country_code = dataFromAttr(dataFromAttr(dataFromAttr(xml, "customer"), "billing-address"), "country-code");
+    var billing_phone = dataFromAttr(dataFromAttr(dataFromAttr(xml, "customer"), "billing-address"), "phone");
+    var shipping_first_name = dataFromAttr(dataFromAttr(dataFromAttr(xml, "shipments"), "shipping-address"), "first-name");
+    var shipping_last_name = dataFromAttr(dataFromAttr(dataFromAttr(xml, "shipments"), "shipping-address"), "last-name");
+    var shipping_address1 = dataFromAttr(dataFromAttr(dataFromAttr(xml, "shipments"), "shipping-address"), "address1");
+    var shipping_address2 = dataFromAttr(dataFromAttr(dataFromAttr(xml, "shipments"), "shipping-address"), "address1");
+    var shipping_postal_code = dataFromAttr(dataFromAttr(dataFromAttr(xml, "shipments"), "shipping-address"), "postal-code");
+    var shipping_country_code = dataFromAttr(dataFromAttr(dataFromAttr(xml, "shipments"), "shipping-address"), "country-code");
+    var shipping_state_code = dataFromAttr(dataFromAttr(dataFromAttr(xml, "shipments"), "shipping-address"), "state-code");
+    var shipping_city = dataFromAttr(dataFromAttr(dataFromAttr(xml, "shipments"), "shipping-address"), "city");
+    var shipping_phone = dataFromAttr(dataFromAttr(dataFromAttr(xml, "shipments"), "shipping-address"), "phone");
+    var init_adjusted_merchandize_total_net_price = dataFromAttr(dataFromAttr(dataFromAttr(xml, 'totals'), 'adjusted-merchandize-total'), 'net-price');
+    var init_adjusted_merchandize_total_tax = dataFromAttr(dataFromAttr(dataFromAttr(xml, 'totals'), 'adjusted-merchandize-total'), "tax");
+    var adjusted_merchandize_total_net_price = init_adjusted_merchandize_total_net_price.substring(init_adjusted_merchandize_total_net_price.indexOf(',') + 1);
+    var adjusted_merchandize_total_tax = init_adjusted_merchandize_total_tax.substring(init_adjusted_merchandize_total_tax.indexOf(',') + 1);
+    var init_adjusted_merchandize_total_gross_price = dataFromAttr(dataFromAttr(dataFromAttr(xml, 'totals'), 'adjusted-merchandize-total'), "gross-price");
+    var adjusted_merchandize_total_gross_price = init_adjusted_merchandize_total_gross_price.substring(init_adjusted_merchandize_total_gross_price.indexOf(',') + 1);
+    var invoice_number = dataFromAttr(xml, "invoice-no");
+    var net_price = dataFromAttr(dataFromAttr(dataFromAttr(xml, 'totals'), 'order-total'), 'net-price');
+    var total_gross_price = dataFromAttr(dataFromAttr(dataFromAttr(xml, 'totals'), 'order-total'), 'gross-price');
+
+
+
+
+    //create new records from xml to add into target DE
+    var newRecord = [{
+        orderid: orderId,
+        created_by: createdby,
+        creation_date: creation_date,
+        customer_no: customer_no,
+        original_order_no: original_order_no,
+        currency: currency,
+        customer_name: customer_name,
+        customer_locale: customer_locale,
+        current_order_no: current_order_no,
+        customer_email: customer_email,
+        invoice_number: invoice_number,
+        billing_first_name: billing_first_name,
+        billing_last_name: billing_last_name,
+        billing_address1: billing_address1,
+        billing_address2: billing_address2,
+        billing_city: billing_city,
+        billing_postal_code: billing_postal_code,
+        billing_state_code: billing_state_code,
+        billing_country_code: billing_country_code,
+        billing_phone: billing_phone,
+        shipping_first_name: shipping_first_name,
+        shipping_last_name: shipping_last_name,
+        shipping_address1: shipping_address1,
+        shipping_address2: shipping_address2,
+        shipping_city: shipping_city,
+        shipping_postal_code: shipping_postal_code,
+        shipping_state_code: shipping_state_code,
+        shipping_country_code: shipping_country_code,
+        shipping_phone: shipping_phone,
+        adjusted_merchandize_total_net_price: adjusted_merchandize_total_net_price,
+        adjusted_merchandize_total_gross_price: adjusted_merchandize_total_gross_price,
+        adjusted_merchandize_total_tax: adjusted_merchandize_total_tax,
+        total_net_price: net_price,
+        total_gross_price: total_gross_price,
+        shipment_id: shipment_id,
+        order_status: order_status,
+        confirmation_status: confirmation_status,
+        payment_status: payment_status
+
+
+
+
+    }];
+
+
+    try {
+        targetDE.Rows.Add(newRecord);
+
+    } catch (e) {
+        Write('Not Inserted');
+    }
+    try {
+        targetDE.Rows.Update(newRecord[0], ["orderid"], [newRecord[0]["orderid"]]);
+      
+
+    } catch (e) {
+        Write('Not Updated');
+    }
+    
+}catch(e){       
+            Stringify(e);
+        }
+  orderXMLDE.Rows.Update({ParsedOrders:true},["OrderNumber"],[orderId]);
+}
+
+</script>
