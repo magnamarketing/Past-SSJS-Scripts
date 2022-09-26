@@ -1,0 +1,339 @@
+// part 1
+
+<script runat = "server" >
+
+    Platform.Load('core', '1');
+
+function trim(x) {
+    return x.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+};
+
+function dataFromAttr(data, attr, notNull) {
+    if (data) {
+        var reg = new RegExp("<" + attr + ">", "g");
+        var result = data.match(reg);
+        if (result.length == 0 && attr == 'quantity unit=""') {
+            var str = '';
+            return trim(str);
+
+        }
+     
+
+        if (result.length == 0) {
+            var str = '';
+            return trim(str);
+
+        }
+        if (result.length == 1 && attr ==  'quantity unit=""') {
+            var str = data.split("<" + attr + ">")[1];
+            str = str.split("</" + 'quantity' + ">")[0];
+            return trim(str);
+        }
+        if (result.length == 1) {
+            var str = data.split("<" + attr + ">")[1];
+            str = str.split("</" + attr + ">")[0];
+            return trim(str);
+        }
+        if (result.length > 1 && attr ==  'quantity unit=""') {
+
+            var sub_array2 = [];
+            var sub_array = [];
+
+
+            arr = data.split("<" + attr + ">");
+
+            for (var i = 1; i < arr.length; i++) {
+                arr[i];
+                str = arr[i].split("</" + 'quantity' + ">")[0];
+                sub_array.push(str);
+            }
+            for (var j = 0; j < sub_array.length; j++) {
+
+                arr2 = sub_array[j].split("<" + attr + ">")[0];
+
+                sub_array2.push(arr2);
+            }
+
+            return sub_array2.toString();
+        }
+        if (result.length > 1) {
+
+            var sub_array2 = [];
+            var sub_array = [];
+
+
+            arr = data.split("<" + attr + ">");
+
+            for (var i = 1; i < arr.length; i++) {
+                arr[i];
+                str = arr[i].split("</" + attr + ">")[0];
+                sub_array.push(str);
+            }
+            for (var j = 0; j < sub_array.length; j++) {
+
+                arr2 = sub_array[j].split("<" + attr + ">")[0];
+
+                sub_array2.push(arr2);
+            }
+
+            return sub_array2.toString();
+        }
+
+        var nullElementValue = new RegExp("<" + attr + " />");
+        if (data.match(nullElementValue).length) return "";
+        if (notNull) return "";
+    } else {
+        return null;
+    }
+};
+
+
+
+
+//Test
+function trim2(x) {
+    return x.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+};
+
+function dataFromAttr2(data, attr, parentatrr, blacklist) {
+
+    if (data) {
+        var reg = new RegExp("<" + attr + ">", "g");
+        var result = data.match(reg);
+
+        if (result.length == 0 && attr ==  'quantity unit=""') {
+            var str = '';
+            return trim(str);
+        }
+
+        if (result.length == 0) {
+            var str = '';
+            return trim(str);
+        }
+
+        if (result.length == 1 && blacklist && attr ==  'quantity unit=""') {
+
+            var str = data.split("<" + blacklist + ">");
+            if (str.length > 1) {
+                var str2 = data.split("<" + blacklist + ">")[1];
+                str2 = str2.split("</" + blacklist + ">")[0];
+                data = data.replace(trim(str2), '');
+            }
+            //str = str.split("</"+blacklist+">")[0];
+
+
+        }
+        if (result.length == 1 && blacklist) {
+
+            var str = data.split("<" + blacklist + ">");
+            if (str.length > 1) {
+                var str2 = data.split("<" + blacklist + ">")[1];
+                str2 = str2.split("</" + blacklist + ">")[0];
+                data = data.replace(trim(str2), '');
+            }
+            //str = str.split("</"+blacklist+">")[0];
+
+
+          
+        }
+
+        if (result.length == 1 && attr ==  'quantity unit=""') {
+            var str = data.split("<" + attr + ">")[1];
+            str = str.split("</" + 'quantity' + ">")[0];
+            return trim(str);
+        }
+        if (result.length == 1) {
+            var str = data.split("<" + attr + ">")[1];
+            str = str.split("</" + attr + ">")[0];
+            return trim(str);
+        }
+
+        if (result.length > 1 && attr ==  'quantity unit=""') {
+            var str = data.split("</" + 'quantity' + ">         <" + attr + ">");
+
+            for (var k = 0; k < str.length - 1; k++) {
+                str[k] = str[k] + "</" + parentatrr + ">";
+                str[k + 1] = "<" + parentatrr + ">" + str[k + 1];
+            }
+            return str;
+        }
+        if (result.length > 1) {
+            var str = data.split("</" + attr + "> <" + attr + ">");
+
+            for (var k = 0; k < str.length - 1; k++) {
+                str[k] = str[k] + "</" + parentatrr + ">";
+                str[k + 1] = "<" + parentatrr + ">" + str[k + 1];
+            }
+            return str;
+        }
+        var nullElementValue = new RegExp("<" + attr + " />");
+        if (data.match(nullElementValue).length) return "";
+        //if(notNull) return "";
+    } else {
+        return null;
+    }
+};
+
+//remove inner blacklisted items
+
+function removeBlacklist(data, attr) {
+
+    var str = data.split("<" + attr + ">");
+    if (str.length > 1 && attr ==  'quantity unit=""') {
+        var str2 = data.split("<" + attr + ">")[1];
+        str2 = str2.split("</" + quantity + ">")[0];
+        data = data.replace(trim(str2), '');
+    }
+
+    if (str.length > 1) {
+        var str2 = data.split("<" + attr + ">")[1];
+        str2 = str2.split("</" + attr + ">")[0];
+        data = data.replace(trim(str2), '');
+    }
+    return data
+
+}
+
+var orderXMLDE = DataExtension.Init("3E5C86DF-8499-4564-B4C2-599C6BDB7D87");
+
+
+var lineItemDE = DataExtension.Init("7CC0A7F3-A527-4E35-BBE8-A6116995CB3E");
+var filter = {Property:"Parsed",SimpleOperator:"equals",Value:false};
+var filter1 = {Property:"Parsed",SimpleOperator:"isNull"};
+var dataOrder = orderXMLDE.Rows.Retrieve(filter);
+
+
+for (var j = 0; j < dataOrder.length; j++) {
+
+    var orderId = dataOrder[j].OrderNumber;
+    var xml = dataOrder[j].OrderAsXML;
+     xml = xml.replace("unit=''",'unit=""');
+     
+    //Add fields from xml
+
+   // var shipment_id = dataFromAttr(dataFromAttr(dataFromAttr(xml, 'product-lineitems'), 'product-lineitem'), 'shipment-id');
+try{
+  
+  
+  
+  
+  
+var productlineItems = dataFromAttr2(dataFromAttr2(xml,'product-lineitems','product-lineitem','option-lineitems'),'product-lineitem','product-lineitem');
+  
+    if (productlineItems.length < 15) {
+        for (var a = 0; a < productlineItems.length; a++) {
+
+            var position = dataFromAttr(removeBlacklist(removeBlacklist(dataFromAttr2(productlineItems[a], 'product-lineitem', 'product-lineitem', 'option-lineitems'), 'shipping-lineitem'), 'price-adjustments'), 'position');
+            var net_price_of_productlineitem = dataFromAttr(removeBlacklist(removeBlacklist(dataFromAttr2(productlineItems[a], 'product-lineitem', 'product-lineitem', 'option-lineitems'), 'shipping-lineitem'), 'price-adjustments'), 'net-price');
+            var gross_price_of_productlineitem = dataFromAttr(removeBlacklist(removeBlacklist(dataFromAttr2(productlineItems[a], 'product-lineitem', 'product-lineitem', 'option-lineitems'), 'shipping-lineitem'), 'price-adjustments'), 'gross-price');
+            var base_price_of_productlineitem = dataFromAttr(removeBlacklist(removeBlacklist(dataFromAttr2(productlineItems[a], 'product-lineitem', 'product-lineitem', 'option-lineitems'), 'shipping-lineitem'), 'price-adjustments'), 'base-price');
+            var tax_of_productlineitem = dataFromAttr(removeBlacklist(removeBlacklist(dataFromAttr2(productlineItems[a], 'product-lineitem', 'product-lineitem', 'option-lineitems'), 'shipping-lineitem'), 'price-adjustments'), 'tax');
+            var tax_basis_of_productlineitem = dataFromAttr(removeBlacklist(removeBlacklist(dataFromAttr2(productlineItems[a], 'product-lineitem', 'product-lineitem', 'option-lineitems'), 'shipping-lineitem'), 'price-adjustments'), 'tax-basis');
+            var tax_rate_of_productlineitem = dataFromAttr(removeBlacklist(removeBlacklist(dataFromAttr2(productlineItems[a], 'product-lineitem', 'product-lineitem', 'option-lineitems'), 'shipping-lineitem'), 'price-adjustments'), 'tax-rate');
+            var product_id = dataFromAttr(removeBlacklist(removeBlacklist(dataFromAttr2(productlineItems[a], 'product-lineitem', 'product-lineitem', 'option-lineitems'), 'shipping-lineitem'), 'price-adjustments'), 'product-id');
+            var product_name = dataFromAttr(removeBlacklist(removeBlacklist(dataFromAttr2(productlineItems[a], 'product-lineitem', 'product-lineitem', 'option-lineitems'), 'shipping-lineitem'), 'price-adjustments'), 'product-name');
+            var product_lineitem_text = dataFromAttr(removeBlacklist(removeBlacklist(dataFromAttr2(productlineItems[a], 'product-lineitem', 'product-lineitem', 'option-lineitems'), 'shipping-lineitem'), 'price-adjustments'), 'lineitem-text');
+            var shipment_id_productlineitem = dataFromAttr(removeBlacklist(removeBlacklist(dataFromAttr2(productlineItems[a], 'product-lineitem', 'product-lineitem', 'option-lineitems'), 'shipping-lineitem'), 'price-adjustments'), 'shipment-id');
+           var quantity = dataFromAttr(removeBlacklist(removeBlacklist(dataFromAttr2(productlineItems[a].replace("unit=''",'unit=""'), 'product-lineitem', 'product-lineitem', 'option-lineitems'), 'shipping-lineitem'), 'price-adjustments'),  'quantity unit=""');
+            var gift = dataFromAttr(removeBlacklist(removeBlacklist(dataFromAttr2(productlineItems[a], 'product-lineitem', 'product-lineitem', 'option-lineitems'), 'shipping-lineitem'), 'price-adjustments'), 'gift');
+
+
+            var dataDES = [{
+                order_no: orderId,
+                position: position,
+                product_id: product_id,
+                product_name: product_name,
+                shipment_id: shipment_id_productlineitem,
+                lineitem_text: product_lineitem_text,
+                net_price: net_price_of_productlineitem,
+
+                tax: tax_of_productlineitem,
+                gross_price: gross_price_of_productlineitem,
+                base_price: base_price_of_productlineitem,
+                tax_basis: tax_basis_of_productlineitem,
+                quantity: quantity,
+                tax_rate: tax_rate_of_productlineitem,
+
+                gift: gift
+            }];
+
+            try {
+                lineItemDE.Rows.Add(dataDES[0]);
+           
+
+            } catch (e) {
+                Write('Not Inserted');
+            }
+            try {
+                lineItemDE.Rows.Update(dataDES[0], ["order_no", "position"], [dataDES[0]["order_no"], dataDES[0]["position"]]);
+             
+
+            } catch (e) {
+                Write('Not Updated');
+            }
+        }
+    } else {
+
+        var position2 = dataFromAttr(productlineItems, 'position');
+
+        var net_price_of_productlineitem2 = dataFromAttr(productlineItems, 'net-price');
+        var tax_of_productlineitem2 = dataFromAttr(productlineItems, 'tax');
+        var product_id2 = dataFromAttr(productlineItems, 'product-id');
+        var product_name2 = dataFromAttr(productlineItems, 'product-name');
+        var tax_of_productlineitem2 = dataFromAttr(productlineItems, 'tax');
+        var shipment_id_productlineitem2 = dataFromAttr(productlineItems, 'shipment-id');
+        var gross_price_of_productlineitem2 = dataFromAttr(productlineItems, 'gross-price');
+        var base_price_of_productlineitem2 = dataFromAttr(productlineItems, 'base-price');
+
+        var tax_basis_of_productlineitem2 = dataFromAttr(productlineItems, 'tax-basis');
+        var tax_rate_of_productlineitem2 = dataFromAttr(productlineItems, 'tax-rate');
+        var product_lineitem_text2 = dataFromAttr(productlineItems, 'lineitem-text');
+
+       var quantity2 = dataFromAttr(productlineItems.replace("unit=''",'unit=""'),  'quantity unit=""');
+        var gift2 = dataFromAttr(productlineItems, 'gift');
+
+        var dataDES2 = [{
+            order_no: orderId,
+            position: position2,
+            product_id: product_id2,
+            product_name: product_name2,
+            tax: tax_of_productlineitem2,
+            gross_price: gross_price_of_productlineitem2,
+            shipment_id: shipment_id_productlineitem2,
+            net_price: net_price_of_productlineitem2,
+
+
+            base_price: base_price_of_productlineitem2,
+            lineitem_text: product_lineitem_text2,
+            tax_basis: tax_basis_of_productlineitem2,
+            quantity: quantity2,
+            tax_rate: tax_rate_of_productlineitem2,
+
+            gift: gift2
+
+        }];
+
+        try {
+            lineItemDE.Rows.Add(dataDES2[0]);
+
+        } catch (e) {
+            Write('Not Inserted');
+        }
+        try {
+            lineItemDE.Rows.Update(dataDES2[0], ["order_no", "position"], [dataDES2[0]["order_no"], dataDES2[0]["position"]]);
+          
+
+        } catch (e) {
+            Write('Not Updated');
+        }
+
+
+    } 
+}catch(e){       
+            Stringify(e);
+        }
+  orderXMLDE.Rows.Update({Parsed:true},["OrderNumber"],[orderId]);
+
+}
+
+</script>
