@@ -1,0 +1,81 @@
+//returns final Order Products by taking the first value in array
+
+<script runat = "server" >
+
+    Platform.Load('core', '1');
+
+
+var targetDE = DataExtension.Init("FBC5804F-B3FC-4C0B-8FA5-4D8D552B3EA5");
+var productDE = DataExtension.Init("7CC0A7F3-A527-4E35-BBE8-A6116995CB3E");
+//7E39F00D-FCC7-4238-9D3C-6A1A7829FA6E
+
+var filter = {Property:"Parsed",SimpleOperator:"equals",Value:false};
+var filter1 = {Property:"Parsed",SimpleOperator:"isNull"};
+
+
+var dataOrder = productDE.Rows.Retrieve(filter);
+
+
+for (var j = 0; j < dataOrder.length; j++) {
+
+    var order_no = dataOrder[j].order_no;
+
+
+
+    var position = dataOrder[j].position;
+    var net_price_of_productlineitem = dataOrder[j].net_price.split(",")[0];
+    var gross_price_of_productlineitem = dataOrder[j].gross_price.split(",")[0];
+    var base_price_of_productlineitem = dataOrder[j].base_price.split(",")[0];
+    var tax_of_productlineitem = dataOrder[j].tax.split(",")[0];
+    var tax_basis_of_productlineitem = dataOrder[j].tax_basis.split(",")[0];
+    var tax_rate_of_productlineitem = dataOrder[j].tax_rate.split(",")[0];
+    var product_id = dataOrder[j].product_id;
+    var product_name = dataOrder[j].product_name;
+    var product_lineitem_text = dataOrder[j].lineitem_text;
+    var shipment_id_productlineitem = dataOrder[j].shipment_id;
+    var quantity = dataOrder[j].quantity.split(",")[0];
+    var gift = dataOrder[j].gift;
+
+
+
+    var dataDES = [{
+        order_no: order_no,
+        position: position,
+        product_id: product_id,
+        product_name: product_name,
+        shipment_id: shipment_id_productlineitem,
+        lineitem_text: product_lineitem_text,
+        net_price: net_price_of_productlineitem,
+
+        tax: tax_of_productlineitem,
+        gross_price: gross_price_of_productlineitem,
+        base_price: base_price_of_productlineitem,
+        tax_basis: tax_basis_of_productlineitem,
+        quantity: quantity,
+        tax_rate: tax_rate_of_productlineitem,
+
+        gift: gift
+    }];
+
+
+    try {
+        targetDE.Rows.Add(dataDES);
+    } catch (e) {
+        Write('Not Inserted');
+    }
+
+
+    try {
+        Write(Stringify(dataDES));
+        targetDE.Rows.Update(dataDES[0], ["order_no", "position"], [dataDES[0]["order_no"], dataDES[0]["position"]]);
+        //Write(Stringify(orderId));
+    } catch (ex) {
+        Write(Stringify(ex));
+    }
+
+productDE.Rows.Update({Parsed:true},["order_no"],[order_no],["position"],[position]);
+
+
+}
+
+</script>
